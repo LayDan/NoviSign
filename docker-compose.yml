@@ -1,0 +1,58 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=jdbc:postgresql://db:5432/novisign
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=1234
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_SERVER=broker:29092
+    depends_on:
+      - db
+      - broker
+      - redis
+  db:
+    image: postgres:15
+    container_name: postgres_db_novisign
+    environment:
+      POSTGRES_DB: novisign
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.2
+    container_name: zookeeper_novisign
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  broker:
+    image: confluentinc/cp-kafka:7.3.2
+    container_name: broker_novisign
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_MESSAGE_MAX_BYTES: 20971520
+  redis:
+    image: redis:7
+    container_name: redis_cache_novisign
+    ports:
+      - "6379:6379"
+volumes:
+  postgres_data:

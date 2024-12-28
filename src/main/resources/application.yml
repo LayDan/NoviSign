@@ -1,0 +1,76 @@
+spring:
+  web:
+    resources:
+      add-mappings: false
+  mvc:
+    throw-exception-if-no-handler-found: true
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password:
+      timeout: 2000ms
+  profiles:
+    active: dev
+  resources:
+    cache:
+      period: 1s
+  #  main:
+  #    allow-bean-definition-overriding: true
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVER:127.0.0.1:9092}
+    template:
+      logs: event-logs
+  jpa:
+    database: postgresql
+    show-sql: true
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  flyway:
+    baseline-on-migrate: true
+    schemas: public
+    enabled: true
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/novisign}
+    password: ${DATABASE_PASSWORD:1234}
+    username: ${DATABASE_USERNAME:postgres}
+    hikari:
+      schema: ${DATABASE_SCHEMA:public}
+      pool-name: "main-pull"
+    driver-class-name: org.postgresql.Driver
+logging:
+  group:
+    disable-group: "org.springframework.core.LocalVariableTableParameterNameDiscoverer"
+    log-group: "org.novisign.service"
+  file:
+    name: novisign.log
+    path: /
+    max-size: 100Mb
+  level:
+    disable-group: OFF
+    org.springframework: warn
+    org.hibernate: error
+    log-group: trace
+    root: warn
+server:
+  tomcat:
+    max-connections: ${max_connections:30000}
+    processor-cache: ${processor_cache:300}
+    accept-count: ${accept_count:250}
+    threads:
+      max: ${max_threads:750}
+    keep-alive-timeout: ${keep_alive_timeout:3s}
+    connection-timeout: ${connection_timeout:3s}
+    max-keep-alive-requests: ${max_keep_alive_requests:10}
+  servlet:
+    session:
+      cookie:
+        name: NOVISIGNID
+  forward-headers-strategy: FRAMEWORK
+  port: ${APP_PORT:8080}

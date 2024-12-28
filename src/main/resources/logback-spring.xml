@@ -1,0 +1,15 @@
+<configuration debug="true">
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <appender name="KAFKA" class="org.novisign.util.KafkaLogAppender">
+        <encoder>
+            <pattern>%-4r %d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c.%M -> %m</pattern>
+        </encoder>
+    </appender>
+    <logger name="org.novisign.service" level="INFO">
+        <appender-ref ref="KAFKA"/>
+    </logger>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
